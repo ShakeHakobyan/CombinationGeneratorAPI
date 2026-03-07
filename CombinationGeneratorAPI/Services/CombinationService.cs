@@ -1,20 +1,46 @@
-﻿namespace CombinationGeneratorAPI.Services
-{
-    using CombinationGeneratorAPI.Data;
-    using CombinationGeneratorAPI.Models;
-    using CombinationGeneratorAPI.Models.Entities;
-    using System.Text.Json;
+﻿using CombinationGeneratorAPI.Data;
+using CombinationGeneratorAPI.Models;
+using CombinationGeneratorAPI.Models.Entities;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
-    public class CombinationService(AppDbContext db) : ICombinationService
+namespace CombinationGeneratorAPI.Services
+{
+    public class CombinationService : ICombinationService
     {
+        private readonly AppDbContext _db;
+        private readonly IRequestCacheService _cacheService;
+
+        public CombinationService(AppDbContext db, IRequestCacheService cacheService)
+        {
+            _db = db;
+            _cacheService = cacheService;
+        }
         public async Task<GenerateResponse> GenerateAsync(GenerateRequest request)
         {
+            // Check if request already exists in DB
+            var existingRequest = await _cacheService.GetExistingRequestAsync(request);
+            if (existingRequest != null)
+            {
+                return new GenerateResponse
+                {
+                    Id = existingRequest.Id,
+                    Combination = existingRequest.Combinations
+                        .Select(c => c.Items.Select(i => i.Item).ToList())
+                        .ToList()
+                };
+            }
+
+            // Generate new combinations
             var combinations = CombinationGenerator.Generate(request.Items, request.Length);
 
+            // Create request entity with combinations
             var requestEntity = CreateRequestEntity(request, combinations);
 
+            // Save to DB in a transaction
             await SaveRequestAsync(requestEntity);
 
+            // Build and return response
             return BuildResponse(requestEntity, combinations);
         }
 
@@ -22,7 +48,7 @@
         {
             return new RequestEntity
             {
-                InputItems = JsonSerializer.Serialize(request.Items),
+                InputItems = JsonSerializer.Serialize(request),
                 CreatedAt = DateTime.UtcNow,
                 Combinations = combinations.Select(CreateCombinationEntity).ToList()
             };
@@ -38,11 +64,11 @@
 
         private async Task SaveRequestAsync(RequestEntity requestEntity)
         {
-            await using var transaction = await db.Database.BeginTransactionAsync();
+            await using var transaction = await _db.Database.BeginTransactionAsync();
             try
             {
-                db.Requests.Add(requestEntity);
-                await db.SaveChangesAsync();
+                _db.Requests.Add(requestEntity);
+                await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
             catch

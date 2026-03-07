@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Register services
+builder.Services.AddScoped<IRequestCacheService, RequestCacheService>();
 builder.Services.AddScoped<ICombinationService, CombinationService>();
 
 
