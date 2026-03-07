@@ -51,7 +51,7 @@
             }
         }
 
-        public static List<List<string>> GenerateCombinations(
+        public static List<List<string>> Generate(
             List<int> letterCounts,
             int comboLength)
         {
