@@ -6,7 +6,7 @@ namespace CombinationGeneratorAPI.Services
     public class LazyRequestCleanupService : IRequestCleanupService
     {
         private readonly AppDbContext _db;
-        private const int MaxRequests = 5;
+        private const int MaxRequests = 1000;
 
         public LazyRequestCleanupService(AppDbContext db)
         {
