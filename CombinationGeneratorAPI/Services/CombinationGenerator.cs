@@ -55,7 +55,7 @@
             List<int> letterCounts,
             int comboLength)
         {
-            if (comboLength == 0)
+            if (comboLength == 0 || letterCounts.Count(n => n != 0) < comboLength)
             {
                 return [];
             }
