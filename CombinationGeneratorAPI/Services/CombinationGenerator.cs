@@ -55,6 +55,10 @@
             List<int> letterCounts,
             int comboLength)
         {
+            if (comboLength == 0)
+            {
+                return [];
+            }
             var allCombos = new List<List<string>>();
             var currentCombo = new List<string>();
 
