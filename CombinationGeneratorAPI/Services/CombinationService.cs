@@ -2,7 +2,6 @@
 using CombinationGeneratorAPI.Models;
 using CombinationGeneratorAPI.Models.Entities;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
 
 namespace CombinationGeneratorAPI.Services
 {
@@ -10,14 +9,22 @@ namespace CombinationGeneratorAPI.Services
     {
         private readonly AppDbContext _db;
         private readonly IRequestCacheService _cacheService;
+        private readonly IRequestCleanupService _cleanupService;
 
-        public CombinationService(AppDbContext db, IRequestCacheService cacheService)
+        public CombinationService(
+            AppDbContext db,
+            IRequestCacheService cacheService,
+            IRequestCleanupService cleanupService)
         {
             _db = db;
             _cacheService = cacheService;
+            _cleanupService = cleanupService;
         }
         public async Task<GenerateResponse> GenerateAsync(GenerateRequest request)
         {
+            // Cleanup (strategy-agnostic)
+            await _cleanupService.PerformCleanupAsync();
+
             // Check if request already exists in DB
             var existingRequest = await _cacheService.GetExistingRequestAsync(request);
             if (existingRequest != null)

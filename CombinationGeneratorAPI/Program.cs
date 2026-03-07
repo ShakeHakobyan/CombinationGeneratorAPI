@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Register services
 builder.Services.AddScoped<IRequestCacheService, RequestCacheService>();
+builder.Services.AddScoped<IRequestCleanupService, LazyRequestCleanupService>();
 builder.Services.AddScoped<ICombinationService, CombinationService>();
 
 
