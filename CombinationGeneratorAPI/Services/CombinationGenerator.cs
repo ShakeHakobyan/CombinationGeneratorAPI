@@ -54,45 +54,28 @@
                 }
             }
         }
-        private static long Binomial(int n, int k)
+        private static void GuardCombinationLimits(List<int> letterCounts, int comboLength)
         {
-            return Factorial(n) / (Factorial(k) * Factorial(n - k));
-        }
-
-        private static long Factorial(int n)
-        {
-            long result = 1;
-            for (int i = 2; i <= n; i++)
-            {
-                result *= i;
-            }
-            return result;
-        }
-
-        private static bool PreGenerationChecks(List<int> letterCounts, int comboLength)
-        {
-            int distinctLetters = letterCounts.Count(n => n != 0);
-
-            if (comboLength == 0 || distinctLetters < comboLength)
-            {
-                return false;
-            }
-
             // Approximate upper bound on combinations.
             // Used as a safety check to avoid combinatorial explosion.
-            long upperBound = Binomial(distinctLetters, comboLength);
-
-            return upperBound <= MAX_COMBINATIONS;
+            int distinctLetters = letterCounts.Count(n => n != 0);
+           
+            long upperBound = CombinationMath.Binomial(distinctLetters, comboLength);
+            if (upperBound > MAX_COMBINATIONS)
+                throw new InvalidOperationException(
+                    $"Too many combinations to generate. Estimated upper bound: {upperBound}.");
         }
 
         public static List<List<string>> Generate(
             List<int> letterCounts,
             int comboLength)
         {
-            if (!PreGenerationChecks(letterCounts, comboLength))
+            if (comboLength == 0 || letterCounts.Count(n => n != 0) < comboLength)
             {
                 return [];
             }
+            GuardCombinationLimits(letterCounts, comboLength);
+
             var allCombos = new List<List<string>>();
             var currentCombo = new List<string>();
 

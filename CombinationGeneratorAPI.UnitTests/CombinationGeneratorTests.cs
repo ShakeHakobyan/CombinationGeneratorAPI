@@ -130,14 +130,13 @@ namespace CombinationGeneratorAPI.Tests
         }
 
         [Fact]
-        public void Generate_WhenCombinationUpperBoundExceedsLimit_ShouldReturnEmptyList()
+        public void Generate_WhenCombinationUpperBoundExceedsLimit_ShouldThrow()
         {
-            var letterCounts = Enumerable.Repeat(2, 20).ToList();
+            var letterCounts = Enumerable.Repeat(3, 20).ToList();
             int length = 10;
 
-            var result = CombinationGenerator.Generate(letterCounts, length);
-
-            Assert.Empty(result);
+            Assert.Throws<InvalidOperationException>(() =>
+                CombinationGenerator.Generate(letterCounts, length));
         }
 
         [Theory]
