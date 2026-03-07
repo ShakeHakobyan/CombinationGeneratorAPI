@@ -2,6 +2,7 @@
 {
     public static class CombinationGenerator
     {
+        private const long MAX_COMBINATIONS = 100_000;
         static List<string> GenerateLetterItems(int letterIdx, int count)
         {
             var items = new List<string>();
@@ -27,12 +28,15 @@
                 return;
             }
 
-            for (int li = lastLetterIdx + 1; li < letterCounts.Count; li++)
+            for (int i = lastLetterIdx + 1; i < letterCounts.Count; i++)
             {
-                int count = letterCounts[li];
-                if (count == 0) continue;
+                int count = letterCounts[i];
+                if (count == 0) 
+                {
+                    continue;
+                }
 
-                var items = GenerateLetterItems(li, count);
+                var items = GenerateLetterItems(i, count);
 
                 foreach (var item in items)
                 {
@@ -40,7 +44,7 @@
 
                     BacktrackCombinations(
                         letterCounts,
-                        li,
+                        i,
                         comboLength,
                         currentCombo,
                         allCombos
@@ -50,12 +54,42 @@
                 }
             }
         }
+        private static long Binomial(int n, int k)
+        {
+            return Factorial(n) / (Factorial(k) * Factorial(n - k));
+        }
+
+        private static long Factorial(int n)
+        {
+            long result = 1;
+            for (int i = 2; i <= n; i++)
+            {
+                result *= i;
+            }
+            return result;
+        }
+
+        private static bool PreGenerationChecks(List<int> letterCounts, int comboLength)
+        {
+            int distinctLetters = letterCounts.Count(n => n != 0);
+
+            if (comboLength == 0 || distinctLetters < comboLength)
+            {
+                return false;
+            }
+
+            // Approximate upper bound on combinations.
+            // Used as a safety check to avoid combinatorial explosion.
+            long upperBound = Binomial(distinctLetters, comboLength);
+
+            return upperBound <= MAX_COMBINATIONS;
+        }
 
         public static List<List<string>> Generate(
             List<int> letterCounts,
             int comboLength)
         {
-            if (comboLength == 0 || letterCounts.Count(n => n != 0) < comboLength)
+            if (!PreGenerationChecks(letterCounts, comboLength))
             {
                 return [];
             }

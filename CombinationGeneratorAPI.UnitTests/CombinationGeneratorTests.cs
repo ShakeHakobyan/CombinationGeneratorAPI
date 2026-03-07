@@ -129,6 +129,17 @@ namespace CombinationGeneratorAPI.Tests
             Assert.Empty(result);
         }
 
+        [Fact]
+        public void Generate_WhenCombinationUpperBoundExceedsLimit_ShouldReturnEmptyList()
+        {
+            var letterCounts = Enumerable.Repeat(2, 20).ToList();
+            int length = 10;
+
+            var result = CombinationGenerator.Generate(letterCounts, length);
+
+            Assert.Empty(result);
+        }
+
         [Theory]
         [InlineData(new int[] { 1, 2, 1 }, 1, 4)]
         [InlineData(new int[] { 2, 2 }, 2, 4)]
