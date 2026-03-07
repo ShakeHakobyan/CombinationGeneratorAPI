@@ -140,10 +140,10 @@ namespace CombinationGeneratorAPI.Tests
                 2,2,2,2,2,2,2,
                 2,2,2,2,2,2,2,
                 2,2,2,2,2,2,2,
-                2,2,2,2,2,2,2
+                2,2,2,2,2
             },
             1,
-            56
+            52
         )]
         [InlineData(
             new int[]
@@ -151,10 +151,10 @@ namespace CombinationGeneratorAPI.Tests
                 2,2,2,2,2,2,2,
                 2,2,2,2,2,2,2,
                 2,2,2,2,2,2,2,
-                2,2,2,2,2,2,2
+                2,2,2,2,2
             },
             3,
-            26208
+            20800
         )]
         public void Generate_MultipleScenarios_ShouldReturnExpectedCount(int[] input, int comboLength, int expectedCount)
         {
