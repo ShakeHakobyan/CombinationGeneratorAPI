@@ -9,8 +9,6 @@
     {
         public async Task<GenerateResponse> GenerateAsync(GenerateRequest request)
         {
-            GenerateRequestValidator.Validate(request);
-
             var combinations = CombinationGenerator.Generate(request.Items, request.Length);
 
             var requestEntity = CreateRequestEntity(request, combinations);
