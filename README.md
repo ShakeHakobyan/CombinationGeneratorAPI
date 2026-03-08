@@ -2,7 +2,7 @@
 
 A REST API that generates **valid combinations of items** and stores them in a database.
 
-The API receives a list of item counts and a required combination length. Each item belongs to a type identified by a **prefix letter** (A, B, C, …).
+The API receives a list of item counts and a required combination length. Each item belongs to a type identified by a **prefix letter** (A, B, C, â€¦).
 
 **Rule:** Items with the **same prefix letter cannot appear in the same combination**.
 
@@ -91,7 +91,7 @@ When generating combinations, **two items with the same prefix cannot appear tog
 ## Requirements
 
 * [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-* PostgreSQL (or another database supported by EF Core)
+* PostgreSQL
 * Optional: Visual Studio 2022 or VS Code
 
 **Notes:**
