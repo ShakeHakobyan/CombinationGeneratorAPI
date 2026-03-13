@@ -202,7 +202,7 @@ Future improvements and features planned for **CombinationGeneratorAPI**:
 
 2. **CI/CD & Testing**
 
-   * Set up a **GitHub Actions pipeline** to run **unit and integration tests** automatically on push/pull requests.
+   * Set up a **GitHub Actions pipeline** to run **unit and integration tests** automatically on push/pull requests. [DONE]
    * Add **integration tests** for `LazyRequestCleanupService` to ensure proper request cleanup.
    * Output test results in a **readable format** for easier debugging.
 
