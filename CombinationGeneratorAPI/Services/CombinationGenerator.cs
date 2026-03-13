@@ -31,7 +31,7 @@
             for (int i = lastLetterIdx + 1; i < letterCounts.Count; i++)
             {
                 int count = letterCounts[i];
-                if (count == 0) 
+                if (count == 0)
                 {
                     continue;
                 }
@@ -59,7 +59,7 @@
             // Approximate upper bound on combinations.
             // Used as a safety check to avoid combinatorial explosion.
             int distinctLetters = letterCounts.Count(n => n != 0);
-           
+
             long upperBound = CombinationMath.Binomial(distinctLetters, comboLength);
             if (upperBound > MAX_COMBINATIONS)
                 throw new InvalidOperationException(
@@ -68,10 +68,12 @@
 
         public static List<List<string>> Generate(
             List<int> letterCounts,
-            int comboLength)
+            int comboLength,
+            ILogger? logger = null)
         {
             if (comboLength == 0 || letterCounts.Count(n => n != 0) < comboLength)
             {
+                logger?.LogInformation("Combo length is zero or not enough letters; returning empty list.");
                 return [];
             }
             GuardCombinationLimits(letterCounts, comboLength);

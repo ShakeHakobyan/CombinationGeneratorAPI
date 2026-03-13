@@ -1,35 +1,52 @@
 ﻿using CombinationGeneratorAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace CombinationGeneratorAPI.Services
 {
     public class LazyRequestCleanupService : IRequestCleanupService
     {
         private readonly AppDbContext _db;
+        private readonly ILogger<LazyRequestCleanupService> _logger;
         private const int MaxRequests = 1000;
 
-        public LazyRequestCleanupService(AppDbContext db)
+        public LazyRequestCleanupService(AppDbContext db, ILogger<LazyRequestCleanupService> logger)
         {
             _db = db;
+            _logger = logger;
         }
 
         public async Task PerformCleanupAsync()
         {
-            int totalRequests = await _db.Requests.CountAsync();
-            if (totalRequests <= MaxRequests)
+            try
             {
-                return;
+                int totalRequests = await _db.Requests.CountAsync();
+                _logger.LogDebug("Total requests in DB before cleanup: {TotalRequests}", totalRequests);
+
+                if (totalRequests <= MaxRequests)
+                {
+                    _logger.LogDebug("No cleanup needed. Total requests ({TotalRequests}) <= MaxRequests ({MaxRequests})",
+                        totalRequests, MaxRequests);
+                    return;
+                }
+
+                var oldRequests = await _db.Requests
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Skip(MaxRequests)
+                    .ToListAsync();
+
+                if (oldRequests.Any())
+                {
+                    _logger.LogInformation("Cleaning up {Count} old requests", oldRequests.Count);
+                    _db.Requests.RemoveRange(oldRequests);
+                    await _db.SaveChangesAsync();
+                    _logger.LogInformation("Cleanup completed successfully");
+                }
             }
-
-            var oldRequests = await _db.Requests
-                .OrderByDescending(r => r.CreatedAt)
-                .Skip(MaxRequests)
-                .ToListAsync();
-
-            if (oldRequests.Any())
+            catch (Exception ex)
             {
-                _db.Requests.RemoveRange(oldRequests);
-                await _db.SaveChangesAsync();
+                _logger.LogError(ex, "Error occurred during lazy request cleanup");
+                throw;
             }
         }
     }

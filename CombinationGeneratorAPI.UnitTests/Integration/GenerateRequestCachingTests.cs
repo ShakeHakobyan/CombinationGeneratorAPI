@@ -1,5 +1,5 @@
-﻿using System.Net.Http.Json;
-using CombinationGeneratorAPI.Models;
+﻿using CombinationGeneratorAPI.Models;
+using System.Net.Http.Json;
 
 namespace CombinationGeneratorAPI.UnitTests.Integration
 {
