@@ -1,7 +1,7 @@
-﻿using System.Net;
+﻿using CombinationGeneratorAPI.Models;
+using System.Net;
 using System.Net.Http.Json;
 using Xunit;
-using CombinationGeneratorAPI.Models;
 
 namespace CombinationGeneratorAPI.UnitTests.Integration
 {
