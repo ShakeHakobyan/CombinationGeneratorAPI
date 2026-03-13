@@ -10,25 +10,31 @@ namespace CombinationGeneratorAPI.Services
         private readonly AppDbContext _db;
         private readonly IRequestCacheService _cacheService;
         private readonly IRequestCleanupService _cleanupService;
+        private readonly ILogger<CombinationService> _logger;
 
         public CombinationService(
             AppDbContext db,
             IRequestCacheService cacheService,
-            IRequestCleanupService cleanupService)
+            IRequestCleanupService cleanupService,
+            ILogger<CombinationService> logger)
         {
             _db = db;
             _cacheService = cacheService;
             _cleanupService = cleanupService;
+            _logger = logger;
         }
+
         public async Task<GenerateResponse> GenerateAsync(GenerateRequest request)
         {
             // Cleanup (strategy-agnostic)
+            _logger.LogDebug("Performing cleanup before generation");
             await _cleanupService.PerformCleanupAsync();
 
             // Check if request already exists in DB
             var existingRequest = await _cacheService.GetExistingRequestAsync(request);
             if (existingRequest != null)
             {
+                _logger.LogInformation("Cache hit: returning existing request {RequestId}", existingRequest.Id);
                 return new GenerateResponse
                 {
                     Id = existingRequest.Id,
@@ -39,13 +45,25 @@ namespace CombinationGeneratorAPI.Services
             }
 
             // Generate new combinations
+            _logger.LogDebug("Generating new combinations for input items {@Items} with length {Length}", request.Items, request.Length);
             var combinations = CombinationGenerator.Generate(request.Items, request.Length);
+            _logger.LogInformation("Generated {Count} combinations", combinations.Count);
 
             // Create request entity with combinations
             var requestEntity = CreateRequestEntity(request, combinations);
 
             // Save to DB in a transaction
-            await SaveRequestAsync(requestEntity);
+            try
+            {
+                _logger.LogDebug("Saving request and combinations to database");
+                await SaveRequestAsync(requestEntity);
+                _logger.LogInformation("Successfully saved request {RequestId} to database", requestEntity.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to save request to database");
+                throw;
+            }
 
             // Build and return response
             return BuildResponse(requestEntity, combinations);

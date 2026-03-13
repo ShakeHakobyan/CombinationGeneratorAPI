@@ -68,10 +68,12 @@
 
         public static List<List<string>> Generate(
             List<int> letterCounts,
-            int comboLength)
+            int comboLength,
+            ILogger? logger = null)
         {
             if (comboLength == 0 || letterCounts.Count(n => n != 0) < comboLength)
             {
+                logger?.LogInformation("Combo length is zero or not enough letters; returning empty list.");
                 return [];
             }
             GuardCombinationLimits(letterCounts, comboLength);
